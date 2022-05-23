@@ -6,6 +6,7 @@ import MealItem from "./MealItem/MealItem";
 const AvailableMeals = () => {
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState();
 
   useEffect(() => {
     const fetchMeals = async () => {
@@ -13,6 +14,10 @@ const AvailableMeals = () => {
       const response = await fetch(
         "https://tesapp-d0cbe-default-rtdb.firebaseio.com/meals.json"
       );
+
+      if (!response.ok) {
+        throw new Error("Something went wrong!");
+      }
       const responseData = await response.json();
 
       const loadedMeals = [];
@@ -25,19 +30,28 @@ const AvailableMeals = () => {
           price: responseData[key].price,
         });
       }
-
-      console.log(loadedMeals);
       setMeals(loadedMeals);
       setLoading(false);
     };
 
-    fetchMeals();
+    fetchMeals().catch((err) => {
+      setLoading(false);
+      setError(err.message);
+    });
   }, []);
 
   if (loading) {
     return (
       <section className={classes.MealsLoading}>
         <p>Loading...</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className={classes.MealsError}>
+        <p>{error}</p>
       </section>
     );
   }
