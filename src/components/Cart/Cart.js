@@ -21,9 +21,22 @@ const Cart = (props) => {
     setIsCheckOut(true);
   };
 
+  const submitOrderHandler = async (userData) => {
+    await fetch(
+      "https://tesapp-d0cbe-default-rtdb.firebaseio.com/orders.json",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          user: userData,
+          orderedItems: cartCtx.items,
+        }),
+      }
+    );
+  };
+
   useEffect(() => {
     console.log(cartCtx.items);
-  });
+  }, [cartCtx.items]);
   const cartItems = (
     <ul className={classes["cart-items"]}>
       {cartCtx.items.map((item) => (
@@ -57,7 +70,9 @@ const Cart = (props) => {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      {isCheckout && <CheckOut onCancel={props.onClose} />}
+      {isCheckout && (
+        <CheckOut onCancel={props.onClose} onConfirm={submitOrderHandler} />
+      )}
       {!isCheckout && modalActions}
     </Modal>
   );
